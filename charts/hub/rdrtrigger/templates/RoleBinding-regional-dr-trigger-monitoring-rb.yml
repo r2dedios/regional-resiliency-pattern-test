@@ -1,6 +1,6 @@
 ---
-apiVersion: v1
-kind: Service
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
 metadata:
   labels:
     app.kubernetes.io/component: operator
@@ -10,13 +10,13 @@ metadata:
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/version: {{ .Chart.AppVersion }}
-  name: regional-dr-trigger-metrics-service
-  namespace: {{ .Values.operator.namespace }}
-spec:
-  ports:
-    - name: metrics
-      port: 8383
-      protocol: TCP
-  selector:
-    app.kubernetes.io/component: operator
-    app.kubernetes.io/part-of: regional-dr-trigger-operator
+  name: regional-dr-trigger-monitoring-rb
+  namespace: regional-dr-trigger
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: regional-dr-trigger-monitoring-role
+subjects:
+  - kind: ServiceAccount
+    name: prometheus-k8s
+    namespace: openshift-monitoring
